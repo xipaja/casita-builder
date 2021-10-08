@@ -22,7 +22,7 @@ def createDirectory(directory = DIRECTORY):
 
 class CasitaLibrary(dict):
 
-    def save(self, fileName, directory = DIRECTORY, screenshot = True, **infoDict):
+    def save(self, fileName, directory = DIRECTORY, screenshot = True, **extraInfo):
         createDirectory(directory)
 
         # The path to save user's file to as ma file
@@ -31,8 +31,8 @@ class CasitaLibrary(dict):
         infoFile = os.path.join(directory, f'{fileName}.json')
 
         # Add new keys, name and path, to dict for saving file 
-        infoDict['name'] = fileName
-        infoDict['path'] = filePath
+        extraInfo['name'] = fileName
+        extraInfo['path'] = filePath
 
         cmds.file(rename = filePath)
 
@@ -47,10 +47,10 @@ class CasitaLibrary(dict):
 
         # Dump dictionary information into a JSON
         with open(infoFile, 'w') as jsonFile:
-            json.dump(infoDict, jsonFile, indent = 4)
+            json.dump(extraInfo, jsonFile, indent = 4)
 
         # Update self with the dictionary every time user saves
-        self[fileName] = infoDict
+        self[fileName] = extraInfo
 
 
     def find(self, directory = DIRECTORY):
@@ -83,7 +83,7 @@ class CasitaLibrary(dict):
             fullPath = os.path.join(directory, mayaFile)
 
             # Save our info from our dictionary above 
-            infoFile = '%s.json' % fileName
+            infoFile = f'{fileName}.json'
 
             # If there is an infoFile json, load json data from the filestream we just opened 
             # Store it into info var
@@ -127,7 +127,7 @@ class CasitaLibrary(dict):
 
     
     def saveScreenshot(self, name, directory = DIRECTORY):
-        path = os.path.join(directory, '%s.jpg' % name)
+        path = os.path.join(directory, f'{name}.jpg')
 
         # Make sure Maya view fits around our screenshot
         cmds.viewFit()
