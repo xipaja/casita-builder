@@ -26,9 +26,9 @@ class CasitaLibrary(dict):
         createDirectory(directory)
 
         # The path to save user's file to as ma file
-        filePath = os.path.join(directory, '%s.ma' % fileName)
+        filePath = os.path.join(directory, f'{fileName}.ma')
 
-        infoFile = os.path.join(directory, '%s.json' % fileName)
+        infoFile = os.path.join(directory, f'{fileName}.json')
 
         # Add new keys, name and path, to dict for saving file 
         infoDict['name'] = fileName
@@ -71,7 +71,10 @@ class CasitaLibrary(dict):
         filesInDirectory = os.listdir(directory)
 
         # Append found files to array if it is a Maya file
-        mayaFiles = [foundFile for foundFile in filesInDirectory if foundFile.endswith('.ma')]
+        mayaFiles = []
+        for f in filesInDirectory:
+            if f.endswith('.ma'):
+                mayaFiles.append(f)
 
         for mayaFile in mayaFiles:
             # Split text from file path to return name and extension separately
@@ -104,3 +107,36 @@ class CasitaLibrary(dict):
         self[fileName] = info
 
         pprint.pprint(self)
+
+        # TODO: rename some vars, there are too many filename, path, etc.
+
+
+    def load(self, name):
+        """
+        Load files into Maya
+
+        Args:
+            name (str): The name of the file to load in
+        """
+
+        # Look up incoming name in dict and set its path value as path
+        path = self[name]['path']
+
+        # Import file with that path
+        cmds.file(path, i = True, usingNamespaces = False)
+
+    
+    def saveScreenshot(self, name, directory = DIRECTORY):
+        path = os.path.join(directory, '%s.jpg' % name)
+
+        # Make sure Maya view fits around our screenshot
+        cmds.viewFit()
+
+        # Tell Maya how to save out img with render settings - jpeg
+        cmds.setAttr('defaultRenderGlobals.imageFormat', 8)
+
+        # Render img with playblast
+        cmds.playblast(completeFilename = path, forceOverwrite = True, format = 'image', width = 200, 
+                        height = 200, showOrnaments = False, startTime = 1, endTime = 1, viewer = False)
+
+        return path
