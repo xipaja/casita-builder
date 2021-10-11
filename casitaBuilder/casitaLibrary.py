@@ -7,28 +7,20 @@ import pprint
 USER_APP_DIR = cmds.internalVar(userAppDir = True)
 
 # Concatenate user app directory with casitaBuilder
-DIRECTORY = os.path.join(USER_APP_DIR, 'casitaBuilder')
-
-def createDirectory(directory = DIRECTORY):
-    """
-    Creates the given directory if it doesn't already exist
-    
-    Args:
-        directory (str): The directory to create
-    """
-
-    if not os.path.exists(directory):
-        os.mkdir(directory)
+casitaDirectory = os.path.join(cmds.internalVar(userAppDir = True), 'casitaBuilder')
 
 class CasitaLibrary(dict):
 
-    def save(self, fileName, directory = DIRECTORY, screenshot = True, **extraInfo):
-        createDirectory(directory)
+    def save(self, fileName, screenshot = True, directory = casitaDirectory, **extraInfo):
+        if not os.path.exists(directory):
+            os.mkdir(directory)
 
         # The path to save user's file to as ma file
         filePath = os.path.join(directory, f'{fileName}.ma')
-
         infoFile = os.path.join(directory, f'{fileName}.json')
+        
+        # if screenshot:
+        #   extraInfo['screenshot'] = self.saveScreenshot(fileName, directory = directory)
 
         # Add new keys, name and path, to dict for saving file 
         extraInfo['name'] = fileName
@@ -42,9 +34,6 @@ class CasitaLibrary(dict):
         else:
             cmds.file(save = True, type = 'mayaAscii', force = True)
 
-
-        # TODO: Screenshot stuff
-
         # Dump dictionary information into a JSON
         with open(infoFile, 'w') as jsonFile:
             json.dump(extraInfo, jsonFile, indent = 4)
@@ -53,7 +42,7 @@ class CasitaLibrary(dict):
         self[fileName] = extraInfo
 
 
-    def find(self, directory = DIRECTORY):
+    def find(self, directory = casitaDirectory):
         """
         Finds casita parts on disk
 
@@ -71,19 +60,15 @@ class CasitaLibrary(dict):
         filesInDirectory = os.listdir(directory)
 
         # Append found files to array if it is a Maya file
-        mayaFiles = []
-        for f in filesInDirectory:
-            if f.endswith('.ma'):
-                mayaFiles.append(f)
+        mayaFiles = [f for f in filesInDirectory if f.endswith('.ma')]
 
         for mayaFile in mayaFiles:
             # Split text from file path to return name and extension separately
-            fileName, fileExt = os.path.split(mayaFile)
-
-            fullPath = os.path.join(directory, mayaFile)
+            fileName, fileExt = os.path.splitext(mayaFile)
 
             # Save our info from our dictionary above 
             infoFile = f'{fileName}.json'
+            screenshot = f'{fileName}.jpg'
 
             # If there is an infoFile json, load json data from the filestream we just opened 
             # Store it into info var
@@ -96,19 +81,17 @@ class CasitaLibrary(dict):
             else:
                 info = {}
 
-            # TODO: More screenshot stuff
+            if screenshot in filesInDirectory:
+                info['screenshot'] = os.path.join(directory, fileName)
 
-        
-        # Populate dictionary in case the info isn't there after emptying
-        info['name'] = fileName
-        info['path'] = fullPath
+            # Populate dictionary in case the info isn't there after emptying
+            info['name'] = fileName
+            info['path'] = os.path.join(directory, mayaFile)
 
-        # Assign key fileName to info dictionary values
-        self[fileName] = info
+            # Assign key fileName to info dictionary values
+            self[fileName] = info
 
-        pprint.pprint(self)
-
-        # TODO: rename some vars, there are too many filename, path, etc.
+        # pprint.pprint(self)
 
 
     def load(self, name):
@@ -126,7 +109,7 @@ class CasitaLibrary(dict):
         cmds.file(path, i = True, usingNamespaces = False)
 
     
-    def saveScreenshot(self, name, directory = DIRECTORY):
+    def saveScreenshot(self, name, directory = casitaDirectory):
         path = os.path.join(directory, f'{name}.jpg')
 
         # Make sure Maya view fits around our screenshot
@@ -140,3 +123,4 @@ class CasitaLibrary(dict):
                         height = 200, showOrnaments = False, startTime = 1, endTime = 1, viewer = False)
 
         return path
+
