@@ -11,7 +11,7 @@ class CasitaUI(QtWidgets.QDialog):
 
         self.setWindowTitle('Casita Builder')
 
-        # Store instance of our files ilbrary in theUI
+        # Store instance of our files library in theUI
         self.library = CasitaLibrary()
 
         # Every time we create a new UI instance, build and populate it
@@ -25,13 +25,15 @@ class CasitaUI(QtWidgets.QDialog):
         btnLayout = QtWidgets.QHBoxLayout(btnWidget)
         layout.addWidget(btnWidget)
 
-        importBtn = QtWidgets.QPushButton('Import into scene')
+        importBtn = QtWidgets.QPushButton('Import item into scene')
         btnLayout.addWidget(importBtn)
 
-        refreshBtn = QtWidgets.QPushButton('Refresh')
+        refreshBtn = QtWidgets.QPushButton('Refresh items')
+        refreshBtn.clicked.connect(self.populate)
         btnLayout.addWidget(refreshBtn)
 
         closeBtn = QtWidgets.QPushButton('Close')
+        closeBtn.clicked.connect(self.close)
         btnLayout.addWidget(closeBtn)
 
         # Gallery of items that can be imported
@@ -59,6 +61,9 @@ class CasitaUI(QtWidgets.QDialog):
 
 
     def populate(self):
+        # Clear out list before finding 
+        self.listWidget.clear()
+
         self.library.find()
 
         for name, info in self.library.items():
