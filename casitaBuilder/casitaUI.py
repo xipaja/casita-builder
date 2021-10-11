@@ -1,5 +1,6 @@
 from .casitaLibrary import CasitaLibrary
 from PySide2 import QtWidgets, QtCore, QtGui
+from maya import cmds
 
 class CasitaUI(QtWidgets.QDialog):
     """
@@ -26,6 +27,7 @@ class CasitaUI(QtWidgets.QDialog):
         layout.addWidget(btnWidget)
 
         importBtn = QtWidgets.QPushButton('Import item into scene')
+        importBtn.clicked.connect(self.load)
         btnLayout.addWidget(importBtn)
 
         refreshBtn = QtWidgets.QPushButton('Refresh items')
@@ -56,7 +58,8 @@ class CasitaUI(QtWidgets.QDialog):
         self.saveTextField = QtWidgets.QLineEdit()
         saveLayout.addWidget(self.saveTextField)
 
-        saveBtn = QtWidgets.QPushButton('Save as ma file')
+        saveBtn = QtWidgets.QPushButton('Save your casita')
+        saveBtn.clicked.connect(self.save)
         saveLayout.addWidget(saveBtn)
 
 
@@ -76,6 +79,31 @@ class CasitaUI(QtWidgets.QDialog):
                 icon = QtGui.QIcon(screenshot)
                 item.setIcon(icon)
 
+    def load(self):
+
+        currentSelectedItem = self.listWidget.currentItem()
+
+        if not currentSelectedItem:
+            cmds.warning("You must select an item to import!")
+            return
+
+        fileName = currentSelectedItem.text()
+        self.library.load(fileName)
+
+    def save(self):
+
+        fileName = self.saveTextField.text()
+        print("file name", fileName)
+
+        if not fileName.strip():
+            cmds.warning("You must give a file name!")
+            return
+
+        self.library.save(fileName)
+        self.populate()
+
+        # Set text field string to empty after saving
+        self.saveTextField.setText('')
 
 def showUI():
     ui = CasitaUI()
