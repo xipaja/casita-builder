@@ -1,5 +1,6 @@
 from .casitaLibrary import CasitaLibrary
 from PySide2 import QtWidgets, QtCore, QtGui
+import os
 from maya import cmds
 import pymel.core as pymel
 import pprint
@@ -68,26 +69,42 @@ class CasitaUI(QtWidgets.QDialog):
         editLayout.addWidget(sliderWidget)
 
         # Sliders for position of items once loaded
-        xLabel = QtWidgets.QLabel("X Position")
-        xSlider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        xSlider.setMinimum(-100)
-        xSlider.setMaximum(100)
-        xSlider.setGeometry(0, 0, 50, 30)
-        sliderLayout.addWidget(xLabel)
-        sliderLayout.addWidget(xSlider)
-        yLabel = QtWidgets.QLabel("Y Position")
-        sliderLayout.addWidget(yLabel)
-        ySlider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        ySlider.setGeometry(0, 0, 50, 30)
-        sliderLayout.addWidget(ySlider)
-        zLabel = QtWidgets.QLabel("Z Position")
-        sliderLayout.addWidget(zLabel)
-        zSlider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        zSlider.setGeometry(0, 0, 50, 30)
-        sliderLayout.addWidget(zSlider)
+        self.xLabel = QtWidgets.QLabel("X Position")
+        self.posLabelX = QtWidgets.QLabel("0")
+        sliderLayout.addWidget(self.xLabel)
+        sliderLayout.addWidget(self.posLabelX)
+        self.xSlider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.xSlider.setMinimum(-50)
+        self.xSlider.setMaximum(50)
+        self.xSlider.valueChanged.connect(self.sliderValueChanged)
+        sliderLayout.addWidget(self.xSlider)
+
+        self.yLabel = QtWidgets.QLabel("Y Position")
+        self.posLabelY = QtWidgets.QLabel("0")
+        sliderLayout.addWidget(self.yLabel)
+        sliderLayout.addWidget(self.posLabelY)
+        self.ySlider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.ySlider.setMinimum(-50)
+        self.ySlider.setMaximum(50)
+        self.ySlider.valueChanged.connect(self.sliderValueChanged)
+        sliderLayout.addWidget(self.ySlider)
+
+        self.zLabel = QtWidgets.QLabel("Z Position")
+        self.posLabelZ = QtWidgets.QLabel("0")
+        sliderLayout.addWidget(self.zLabel)
+        sliderLayout.addWidget(self.posLabelZ)
+        self.zSlider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.zSlider.setMinimum(-50)
+        self.zSlider.setMaximum(50)
+        self.zSlider.valueChanged.connect(self.sliderValueChanged)
+        sliderLayout.addWidget(self.zSlider)
 
         # Color button
         self.colorBtn = QtWidgets.QPushButton()
+        self.colorBtn.setFixedSize(100, 70)
+        icon = QtGui.QPixmap(os.path.join(cmds.internalVar(userAppDir = True), 'casitaBuilder') + '/color_wheel.PNG')
+        self.colorBtn.setIcon(icon)
+        self.colorBtn.setIconSize(QtCore.QSize(100, 100))
         self.colorBtn.clicked.connect(self.setColor)
         editLayout.addWidget(self.colorBtn)
 
@@ -102,6 +119,19 @@ class CasitaUI(QtWidgets.QDialog):
         saveBtn = QtWidgets.QPushButton('Save your casita')
         saveBtn.clicked.connect(self.save)
         saveLayout.addWidget(saveBtn)
+
+    def sliderValueChanged(self):
+        valueX = self.xSlider.value()
+        self.posLabelX.setText(str(valueX))
+
+        valueY = self.ySlider.value()
+        self.posLabelY.setText(str(valueY))
+
+        valueZ = self.zSlider.value()
+        self.posLabelZ.setText(str(valueZ))
+        
+        selectedObj = cmds.ls(selection = True)
+        cmds.move(valueX, valueY, valueZ)        
 
     def setColor(self):
             # opens up Maya color's editor and we can choose colors there

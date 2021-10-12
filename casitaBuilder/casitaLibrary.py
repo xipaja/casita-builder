@@ -12,6 +12,14 @@ casitaDirectory = os.path.join(cmds.internalVar(userAppDir = True), 'casitaBuild
 class CasitaLibrary(dict):
 
     def save(self, fileName, screenshot = True, directory = casitaDirectory, **extraInfo):
+        """
+        Save file to disk
+
+        Args:
+            fileName (str): the name to save it under
+            directory (str): the directory to search in
+        """
+        
         if not os.path.exists(directory):
             os.mkdir(directory)
 
