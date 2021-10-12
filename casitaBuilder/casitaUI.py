@@ -1,16 +1,18 @@
 from .casitaLibrary import CasitaLibrary
 from PySide2 import QtWidgets, QtCore, QtGui
 import os
-from maya import cmds
+from maya import cmds, OpenMayaUI
 import pymel.core as pymel
+from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 import pprint
 
-class CasitaUI(QtWidgets.QDialog):
+class CasitaUI(MayaQWidgetDockableMixin, QtWidgets.QDialog):
     """
     This is a dialog that allows the user to save and import controllers
     """
 
     def __init__(self):
+            
         super(CasitaUI, self).__init__()
 
         self.setWindowTitle('Casita Builder')
@@ -201,5 +203,5 @@ def showUI():
     Returns: QDialog
     """
     ui = CasitaUI()
-    ui.show()
+    ui.show(dockable = True)
     return ui
