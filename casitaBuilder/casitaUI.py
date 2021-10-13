@@ -133,16 +133,29 @@ class CasitaUI(MayaQWidgetDockableMixin, QtWidgets.QDialog):
         self.posLabelZ.setText(str(valueZ))
         
         selectedObj = cmds.ls(selection = True)
+        if not selectedObj:
+            cmds.warning("Select an object in the viewport to move!")
+
         cmds.move(valueX, valueY, valueZ)        
 
     def setColor(self):
             # opens up Maya color's editor and we can choose colors there
             color = pymel.colorEditor(rgbValue = (0,1,0))
+            selectedObj = cmds.ls(selection = True)[0]
+            print("selected", selectedObj)
 
             # converting our colors to floats to get around Maya's annoying returning colors in string format instead of list
             r, g, b, a = [float(c) for c in color.split()]
             
-            color = (r, g, b)
+            # Get material from shading engine so we can change color
+            objMesh = cmds.listRelatives(selectedObj, shapes = True)
+            objShader = cmds.listConnections(objMesh, type="shadingEngine")[0]
+            objMat = cmds.listConnections(objShader + ".surfaceShader")[0]
+            
+            cmds.setAttr(objMat + ".color", r, g, b)
+
+            objColor = cmds.getAttr(objMat + ".color")
+            print("color", objColor)
 
     def populate(self):
         """
@@ -172,7 +185,7 @@ class CasitaUI(MayaQWidgetDockableMixin, QtWidgets.QDialog):
         currentSelectedItem = self.listWidget.currentItem()
 
         if not currentSelectedItem:
-            cmds.warning("You must select an item to import!")
+            cmds.warning("Select an item to import!")
             return
 
         fileName = currentSelectedItem.text()
@@ -187,7 +200,7 @@ class CasitaUI(MayaQWidgetDockableMixin, QtWidgets.QDialog):
         print("file name", fileName)
 
         if not fileName.strip():
-            cmds.warning("You must give a file name!")
+            cmds.warning("Please enter a file name!")
             return
 
         self.library.save(fileName)
