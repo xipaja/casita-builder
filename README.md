@@ -1,2 +1,2 @@
 # casita-builder
-Casita Builder Tool for Maya - in progress!
+Casita Builder Tool for Maya
