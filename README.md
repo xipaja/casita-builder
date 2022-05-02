@@ -18,6 +18,8 @@
 - Option 1: Importing into script editor
      Open the script editor in Maya (Windows -> General Windows -> Script Editor)
      Type "import (where your module lives)"
+  
+ - Option 2: select File > Open Script to load a MEL or Python script from a file
 
 ##### Adding new models to the grid
 - Add .ma file to location on disk
